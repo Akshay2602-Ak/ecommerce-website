@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    container_name: nodejs-ecommerce-app
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: ecommerce_password
+      DB_NAME: equantom
+      HOST: 0.0.0.0
+      PORT: 3000
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: nodejs-ecommerce-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ecommerce_password
+      MYSQL_DATABASE: equantom
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./equantom.sql:/docker-entrypoint-initdb.d/equantom.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pecommerce_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mysql_data:
